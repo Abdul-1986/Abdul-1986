@@ -393,20 +393,30 @@ const PaymentsManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.member_id || !formData.amount || !formData.payment_type) {
+      alert('Please fill all required fields');
+      return;
+    }
+    
     try {
-      await axios.post(`${API}/payments`, formData);
-      setShowAddForm(false);
-      setFormData({
-        member_id: '',
-        amount: '',
-        payment_type: 'monthly_chanda',
-        transaction_id: '',
-        month_year: new Date().toISOString().slice(0, 7)
-      });
-      fetchData();
+      const response = await axios.post(`${API}/payments`, formData);
+      if (response.status === 200) {
+        alert(`Payment recorded successfully! Receipt Number: ${response.data.receipt_number}`);
+        setShowAddForm(false);
+        setFormData({
+          member_id: '',
+          amount: '',
+          payment_type: 'monthly_chanda',
+          transaction_id: '',
+          month_year: new Date().toISOString().slice(0, 7)
+        });
+        fetchData();
+      }
     } catch (error) {
       console.error('Error adding payment:', error);
-      alert('Error processing payment');
+      alert('Error processing payment: ' + (error.response?.data?.detail || error.message));
     }
   };
 
